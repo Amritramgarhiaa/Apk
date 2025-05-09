@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>apknixy App Store</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            margin: 0;
+            padding: 10px;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        h3.section-title {
+            font-size: 18px;
+            margin: 20px 0 10px;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .loading-text {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 50px;
+            color: #bbb;
+        }
+
+        .app-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            /* Hide scrollbar for Chrome, Safari and Opera */
+            &::-webkit-scrollbar {
+                display: none;
+            }
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .app-box {
+            background: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+            width: 100px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .app-box:hover {
+            transform: scale(1.05);
+        }
+
+        .app-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 3px;
+        }
+
+        .app-os {
+            font-size: 10px;
+            color: #a0a0a0;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+
+        .app-name {
+            font-size: 12px;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 3px;
+        }
+
+        .app-meta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: #bbb;
+            margin-bottom: 5px;
+        }
+
+        .stars {
+            color: #f39c12;
+        }
+
+        .app-size {
+            color: #a0a0a0;
+        }
+
+
+        .install-btn {
+            background: #0b57d0;
+            color: white;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 11px;
+            width: 90%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .install-btn:hover {
+            background-color: #0845a0;
+        }
+
+
+        /* Popup Modal (Full Screen) */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a1a;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .popup-content {
+            background: #2c2c2c;
+            color: #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 700px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .popup-back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .popup-back-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-top: 20px;
+        }
+
+        .popup-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+        }
+
+        .popup-details {
+            flex-grow: 1;
+        }
+
+        .popup-title {
+            font-size: 22px;
+            margin: 0 0 5px 0;
+            font-weight: bold;
+        }
+
+        .popup-sub-meta {
+            font-size: 12px;
+            color: #64b5f6;
+            margin-top: 5px;
+        }
+
+        .popup-sub-meta span {
+            margin-right: 10px;
+        }
+
+
+        .popup-meta-details {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+
+
+        .popup-info {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 15px;
+        }
+
+        .popup .btn.share {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: auto;
+            padding: 8px 12px;
+            z-index: 10;
+            margin-top: 0;
+        }
+
+
+        .popup-screenshots {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin: 15px 0;
+            padding-bottom: 10px;
+            /* Hide scrollbar */
+            &::-webkit-scrollbar {
+                display: none;
+            }
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .popup-screenshots img {
+            height: 180px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .popup-screenshots img:hover {
+            transform: scale(1.02);
+        }
+
+
+        .popup-desc {
+            font-size: 14px;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .popup-sections {
+            margin-top: 20px;
+            border-top: 1px solid #3a3a3a;
+            padding-top: 20px;
+        }
+
+        .popup-sections .section-title {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .popup-sections .app-row {
+            gap: 8px;
+        }
+
+        .popup-sections .app-box {
+            width: 90px;
+            height: 130px;
+            padding: 8px;
+        }
+
+        .popup-sections .app-logo {
+            width: 35px;
+            height: 35px;
+        }
+
+        .popup-sections .app-name {
+            font-size: 11px;
+        }
+
+        .popup-sections .app-meta,
+        .popup-sections .app-os {
+            font-size: 9px;
+        }
+
+        .popup-sections .install-btn {
+            font-size: 10px;
+            padding: 4px 6px;
+        }
+
+
+        .btn {
+            background: #0b57d0;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0845a0;
+        }
+
+        .btn.share {
+            background: #34a853;
+            margin-top: 0;
+        }
+
+        .btn.share:hover {
+            background-color: #2d8b47;
+        }
+
+
+        /* Fullscreen Image Modal */
+        .image-modal {
+            display: none;
+            /* Ensured hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            /* Use flex centering */
+            align-items: center;
+        }
+
+        .image-modal-content {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-screenshot {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: background-color 0.3s;
+        }
+
+        .carousel-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+
+        .carousel-left {
+            left: 10px;
+        }
+
+        .carousel-right {
+            right: 10px;
+        }
+
+        .image-modal .btn.back {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1002;
+            background-color: rgba(0, 0, 0, 0.6);
+            width: auto; /* Adjust width for back button */
+            padding: 8px 12px; /* Adjust padding */
+        }
+
+        .image-modal .btn.back:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+
+        @media screen and (max-width: 600px) {
+            .app-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+
+            .app-box {
+                width: 90px;
+                height: 130px;
+                padding: 8px;
+            }
+
+            .app-logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .app-name {
+                font-size: 11px;
+            }
+
+            .app-meta,
+            .app-os {
+                font-size: 9px;
+            }
+
+            .install-btn {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+
+            .popup-content {
+                padding: 15px;
+                margin: 10px auto;
+            }
+
+            .popup-back-button {
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+                top: 10px;
+                left: 10px;
+            }
+
+            .popup .btn.share {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+
+            .popup-header img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .popup-title {
+                font-size: 18px;
+            }
+
+            .popup-meta,
+            .popup-info,
+            .popup-desc {
+                font-size: 13px;
+            }
+
+            .popup-sections .app-box {
+                width: 80px;
+                height: 120px;
+                padding: 6px;
+            }
+
+            .popup-sections .app-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .carousel-button {
+                padding: 10px;
+                font-size: 18px;
+            }
+
+            .image-modal .btn.back {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading" class="loading-text">Loading apps...</div>
+
+    <div id="categories-container"></div>
+
+    <h3 class="section-title">All Apps</h3>
+    <div id="all-apps-container" class="app-grid"></div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <button class="popup-back-button" onclick="closePopup()">←</button>
+            <button class="btn share" onclick="shareApp()">Share</button>
+
+            <div class="popup-header">
+                <img id="popup-logo" src="" onerror="this.onerror=null;this.src='placeholder.png';">
+                <div class="popup-details">
+                    <h3 id="popup-title" class="popup-title"></h3>
+                    <div id="popup-meta-details" class="popup-meta-details"></div>
+                    <div id="popup-sub-meta" class="popup-sub-meta"></div>
+                </div>
+            </div>
+            <p id="popup-info" class="popup-info"></p>
+
+            <div id="popup-screenshots" class="popup-screenshots">
+            </div>
+
+            <button class="btn" id="popup-install-btn">Install</button>
+            <p id="popup-desc" class="popup-desc"></p>
+
+            <div id="popup-internal-sections" class="popup-sections">
+            </div>
+
+        </div>
+    </div>
+
+    <div id="image-modal" class="image-modal">
+        <div class="image-modal-content">
+            <button class="btn back" onclick="closeImageModal()">Back</button>
+            <img id="fullscreen-screenshot-img" class="fullscreen-screenshot" src="" alt="Fullscreen Screenshot"
+                onerror="this.onerror=null;this.src='placeholder.png';">
+            <button class="carousel-button carousel-left" onclick="changeScreenshot('prev')">←</button>
+            <button class="carousel-button carousel-right" onclick="changeScreenshot('next')">→</button>
+        </div>
+    </div>
+
+
+    <script>
+        let apps = [];
+        let currentAppInPopup = null;
+        let currentScreenshotIndex = 0; // Track screenshot index in fullscreen modal
+
+        const mainSectionNames = [
+            "Popular Apps", "Trending Now", "Recommended for You", "New Releases",
+            "Top Picks", "Featured Apps", "Best Sellers", "Editors' Choice",
+            "Hot Today", "Must-Have Apps", "What's Hot", "Trending Today",
+            "Top Rated", "Most Downloaded", "On the Rise", "Top Charts",
+            "Daily Picks", "Most Viewed", "App of the Week", "Fresh Apps",
+            "Curated Collections"
+        ]; // 21 sections
+
+        const popupSectionNames = [
+            "More from Developer", "Similar Apps", "You Might Also Like", "Related Apps"
+        ]; // Names for sections inside the popup
+
+        const apknixyAppLink = "https://apk.e-droid.net/apk/app3405089-6knv8c.apk?v=1";
+
+        function fetchApps() {
+            const loadingElement = document.getElementById('loading');
+            loadingElement.style.display = 'block';
+            // Ensure containers are visible even during loading, they will be empty initially
+            document.getElementById('categories-container').style.display = 'block';
+            document.getElementById('all-apps-container').style.display = 'grid';
+
+
+            fetch("https://script.google.com/macros/s/AKfycbyyA19h50TrBWYSwnBR72DIVh9Zv7dfQtCAYsPhQRYlu0G9FjnvSmGKxCN_V3eKbTIO/exec") // Corrected URL based on common pattern
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error(`HTTP error! status: ${r.status}`);
+                    }
+                    return r.json();
+                })
+                .then(data => {
+                    apps = data;
+                    loadingElement.style.display = 'none'; // Hide loading text
+                    displaySections();
+                    displayAllApps();
+                })
+                .catch(error => {
+                    console.error("Error fetching apps:", error);
+                    loadingElement.textContent = 'Failed to load apps. Please check your internet connection.';
+                });
+        }
+
+        // Call fetchApps on initial page load
+        fetchApps();
+
+        function displaySections() {
+            const container = document.getElementById("categories-container");
+            container.innerHTML = "";
+
+            const shuffledApps = [...apps].sort(() => Math.random() - 0.5); // Shuffle apps for random sections
+
+            mainSectionNames.forEach((name, index) => {
+                let sectionDiv = document.createElement("div");
+                sectionDiv.innerHTML = `<h3 class="section-title">${name}</h3>`;
+                let row = document.createElement("div");
+                row.className = "app-row";
+
+                // Get a unique slice of 10 apps for this section
+                const startIndex = (index * 10 + index * 3) % shuffledApps.length; // Slightly more varied start index
+                let sectionApps = shuffledApps.slice(startIndex, startIndex + 10);
+                if (sectionApps.length < 10 && shuffledApps.length > 0) {
+                    // Wrap around if not enough apps from the end
+                    sectionApps.push(...shuffledApps.slice(0, 10 - sectionApps.length));
+                } else if (sectionApps.length === 0 && shuffledApps.length > 0) {
+                    // Fallback if slice is empty
+                    sectionApps = shuffledApps.slice(0, Math.min(10, shuffledApps.length));
+                }
+
+
+                sectionApps.forEach(app => row.appendChild(createAppBox(app)));
+
+                container.appendChild(sectionDiv);
+                sectionDiv.appendChild(row);
+            });
+        }
+
+        function displayAllApps() {
+            const grid = document.getElementById("all-apps-container");
+            grid.innerHTML = "";
+            apps.forEach(app => grid.appendChild(createAppBox(app)));
+        }
+
+        function createAppBox(app) {
+            let box = document.createElement("div");
+            box.className = "app-box";
+            box.innerHTML = `
+                <img class="app-logo" src="${app.logo || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
+                <div class="app-os">${app.os || 'OS'}</div>
+                <div class="app-name">${app.name ? (app.name.length > 10 ? app.name.slice(0, 10) + '...' : app.name) : 'Unnamed App'}</div>
+                <div class="app-meta">
+                    <span class="stars">★ ${app.rating || '4.0'}</span> |
+                    <span class="app-size">${app.size || '??MB'}</span>
+                </div>
+                <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app.Download || '#'}'">Install</button>
+            `;
+            box.addEventListener('click', () => openPopup(app));
+
+            return box;
+        }
+
+
+        function openPopup(app) {
+            currentAppInPopup = app;
+
+            document.getElementById("popup-logo").src = app.logo || 'placeholder.png';
+            document.getElementById("popup-title").textContent = app.name || 'Unnamed App';
+
+            // Populate Popup Meta Details
+            const metaDetails = document.getElementById("popup-meta-details");
+            metaDetails.innerHTML = `
+                Rating: ${app.rating || '4.0'} |
+                Reviews: ${app.reviewsCount || '0'} |
+                Size: ${app.size || '??MB'} |
+                Downloads: ${app.initialDownloadsCount || '??'}
+            `;
+
+            // Populate Popup Sub Meta (Ads, IAP, Age)
+            const subMeta = document.getElementById("popup-sub-meta");
+            subMeta.innerHTML = `
+                 ${app.containAds === 'Yes' ? '<span>Contains Ads</span>' : ''}
+                 ${app.inAppPurchases === 'Yes' ? '<span>In-App Purchases</span>' : ''}
+                 ${app.madeForChildren === 'Yes' ? '<span>+3</span>' : (app.madeForChildren === 'No' ? '<span>+18</span>' : '')}
+            `;
+
+
+            document.getElementById("popup-info").textContent = app.info || '';
+            document.getElementById("popup-desc").textContent = app.description || 'No description available.';
+
+            const installBtn = document.getElementById("popup-install-btn");
+            // Changed installUrl to Download
+            installBtn.onclick = () => window.location.href = app.Download || '#';
+            installBtn.disabled = !app.Download; // Also disable if app.Download is empty or null
+
+
+            const screenshotsContainer = document.getElementById("popup-screenshots");
+            screenshotsContainer.innerHTML = '';
+
+            if (app.screenshots && Array.isArray(app.screenshots) && app.screenshots.length > 0) {
+                app.screenshots.forEach((screenshot, index) => {
+                    const img = document.createElement("img");
+                    img.src = screenshot;
+                    img.alt = `Screenshot ${index + 1}`;
+                    img.onclick = (event) => {
+                        event.stopPropagation();
+                        openImageModal(index);
+                    };
+                    screenshotsContainer.appendChild(img);
+                });
+            } else {
+                screenshotsContainer.innerHTML = '<p style="text-align: center; color: #a0a0a0;">No screenshots available.</p>';
+            }
+
+            // Display sections inside the popup
+            displayPopupSections();
+
+
+            document.getElementById("popup").style.display = 'block';
+            // Push a state to history when popup opens
+            // Only push if the current state is not already indicating the popup is open
+            if (!history.state || (!history.state.popupOpen && !history.state.imageModalOpen)) {
+                history.pushState({
+                    popupOpen: true
+                }, '', '#popup');
+                console.log("Pushed popup state.");
+            } else {
+                console.log("Did not push popup state, already in popup/modal state.");
+            }
+        }
+
+        function displayPopupSections() {
+            const container = document.getElementById("popup-internal-sections");
+            container.innerHTML = "";
+
+            const shuffledApps = [...apps].sort(() => Math.random() - 0.5);
+
+            // Display 3 sections within the popup
+            popupSectionNames.slice(0, 3).forEach((name, index) => {
+                let sectionDiv = document.createElement("div");
+                sectionDiv.innerHTML = `<h3 class="section-title">${name}</h3>`;
+                let row = document.createElement("div");
+                row.className = "app-row";
+
+                // Get a slice of 5 random apps for each popup section
+                const startIndex = (index * 5 + index * 2) % shuffledApps.length;
+                let sectionApps = shuffledApps.slice(startIndex, startIndex + 5);
+                if (sectionApps.length === 0 && shuffledApps.length > 0) {
+                    sectionApps = shuffledApps.slice(0, Math.min(5, shuffledApps.length));
+                }
+
+
+                sectionApps.forEach(app => {
+                    let box = document.createElement("div");
+                    box.className = "app-box";
+                    box.innerHTML = `
+                            <img class="app-logo" src="${app.logo || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
+                            <div class="app-os">${app.os || 'OS'}</div>
+                            <div class="app-name">${app.name ? (app.name.length > 10 ? app.name.slice(0, 10) + '...' : app.name) : 'Unnamed App'}</div>
+                            <div class="app-meta">
+                                <span class="stars">★ ${app.rating || '4.0'}</span> |
+                                <span class="app-size">${app.size || '??MB'}</span>
+                            </div>
+                            <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app.Download || '#'}'">Install</button>
+                       `;
+                    // Add click listener to open the popup for THIS app
+                    box.addEventListener('click', () => {
+                        closePopup(); // Close the current popup gracefully (handles history)
+                        // Wait a moment before opening the new popup to avoid history issues
+                        setTimeout(() => openPopup(app), 50); // Short delay
+                    });
+                    row.appendChild(box);
+                });
+
+                if (sectionApps.length > 0) {
+                    sectionDiv.appendChild(row);
+                    container.appendChild(sectionDiv);
+                }
+            });
+        }
+
+
+        function closePopup() {
+            document.getElementById("popup").style.display = 'none';
+            currentAppInPopup = null;
+            // Go back in history IF the current state was the popup state we pushed
+            if (history.state && history.state.popupOpen && !history.state.imageModalOpen) {
+                history.back();
+                console.log("Called history.back() from closePopup");
+            } else {
+                console.log("closePopup: Did not call history.back(), current state is:", history.state);
+                // If not going back in history, ensure URL hash is clean if needed
+                if (window.location.hash === '#popup') {
+                    history.replaceState({}, '', window.location.pathname + window.location.search);
+                }
+            }
+        }
+
+        function openImageModal(initialIndex = 0) {
+            if (!currentAppInPopup || !currentAppInPopup.screenshots || !Array.isArray(currentAppInPopup.screenshots) || currentAppInPopup.screenshots.length === 0) {
+                console.error("No screenshots available for fullscreen view.");
+                return;
+            }
+
+            currentScreenshotIndex = initialIndex;
+            const modal = document.getElementById('image-modal');
+            const imgElement = document.getElementById('fullscreen-screenshot-img');
+
+            console.log("Opening fullscreen screenshot:", currentAppInPopup.screenshots[currentScreenshotIndex]);
+            imgElement.src = currentAppInPopup.screenshots[currentScreenshotIndex];
+
+
+            modal.style.display = 'flex';
+            // Push a new state for the image modal
+            if (!history.state || !history.state.imageModalOpen) { // Only push if not already in image modal state
+                history.pushState({
+                    imageModalOpen: true
+                }, '', '#screenshot');
+                console.log("Pushed image modal state.");
+            } else {
+                console.log("Did not push image modal state, already in image modal state.");
+            }
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').style.display = 'none';
+            currentScreenshotIndex = 0; // Reset index for next time
+            // Go back in history IF the current state was the image modal state we pushed
+            if (history.state && history.state.imageModalOpen) {
+                history.back();
+                console.log("Called history.back() from closeImageModal");
+            } else {
+                console.log("closeImageModal: Did not call history.back(), current state is:", history.state);
+                // If not going back in history, ensure URL hash is clean if needed
+                if (window.location.hash === '#screenshot') {
+                    history.replaceState({}, '', window.location.pathname + window.location.search);
+                }
+            }
+        }
+
+        function changeScreenshot(direction) {
+            if (!currentAppInPopup || !currentAppInPopup.screenshots || !Array.isArray(currentAppInPopup.screenshots) || currentAppInPopup.screenshots.length <= 1) {
+                return;
+            }
+
+            const screenshots = currentAppInPopup.screenshots;
+
+            if (direction === 'next') {
+                currentScreenshotIndex = (currentScreenshotIndex + 1) % screenshots.length;
+            } else if (direction === 'prev') {
+                currentScreenshotIndex = (currentScreenshotIndex - 1 + screenshots.length) % screenshots.length;
+            }
+
+            const imgElement = document.getElementById('fullscreen-screenshot-img');
+            console.log("Changing fullscreen screenshot:", currentScreenshotIndex, screenshots[currentScreenshotIndex]);
+            imgElement.src = screenshots[currentScreenshotIndex];
+        }
+
+
+        function shareApp() {
+            if (!currentAppInPopup) {
+                console.log('No app selected to share.');
+                return;
+            }
+
+            const appName = currentAppInPopup.name || 'Unnamed App';
+            const appDescriptionSnippet = currentAppAppInPopup.description ? currentAppInPopup.description.substring(0, 150).trim() + '...' : 'Check out this app!';
+            // Use app.Download for the share URL if available, otherwise fallback
+            const appInstallUrl = currentAppInPopup.Download || '#';
+            const appRating = currentAppInPopup.rating || 'N/A';
+            const appSize = currentAppInPopup.size || 'N/A';
+
+
+            let shareText = `*${appName}*\n`;
+            shareText += `Rating: ${appRating} | Size: ${appSize}\n`;
+            if (currentAppInPopup.containAds === 'Yes') shareText += `Contains Ads\n`;
+            if (currentAppInPopup.inAppPurchases === 'Yes') shareText += `In-App Purchases\n`;
+            if (currentAppInPopup.madeForChildren === 'Yes') shareText += `Age Rating: +3\n`;
+            else if (currentAppInPopup.madeForChildren === 'No') shareText += `Age Rating: +18\n`;
+            shareText += `\n${appDescriptionSnippet}\n\n`;
+
+            if (appInstallUrl !== '#') {
+                shareText += `Download App: ${appInstallUrl}\n`;
+            }
+            shareText += `\nGet apknixy App Store: ${apknixyAppLink}`;
+
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `Check out ${appName} on apknixy`,
+                    text: shareText,
+                    // Use appInstallUrl for the shared URL, fallback to current page
+                    url: appInstallUrl !== '#' ? appInstallUrl : window.location.href
+                }).catch(error => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                console.log('Web Share API not supported.');
+                console.log('Share Details:', shareText);
+                // Removed alert - user needs to check console for details
+            }
+        }
+
+        // Handle browser history changes (like the phone's back button)
+        window.addEventListener('popstate', function(event) {
+            const popup = document.getElementById('popup');
+            const imageModal = document.getElementById('image-modal');
+
+            console.log("Popstate event. State:", event.state);
+
+            // If we navigate back and the state indicates image modal was open, close it
+            if (imageModal.style.display === 'flex' && (!event.state || !event.state.imageModalOpen)) {
+                console.log("Popstate: Closing image modal.");
+                imageModal.style.display = 'none';
+                currentScreenshotIndex = 0; // Reset index
+            }
+            // If we navigate back and the state indicates popup was open (and image modal is now closed), close the popup
+            else if (popup.style.display === 'block' && imageModal.style.display !== 'flex' && (!event.state || (!event.state.popupOpen && !event.state.imageModalOpen))) {
+                console.log("Popstate: Closing popup.");
+                popup.style.display = 'none';
+                currentAppInPopup = null;
+            }
+            // If the state indicates the popup should be open (e.g., navigating back from image modal to popup)
+            else if (event.state && event.state.popupOpen && !event.state.imageModalOpen) {
+                console.log("Popstate: Opening popup based on state.");
+                popup.style.display = 'block';
+                imageModal.style.display = 'none'; // Ensure modal is closed
+                currentScreenshotIndex = 0; // Reset index
+            }
+            // If the state indicates image modal should be open (this shouldn't happen from back unless direct link + history manipulation)
+            else if (event.state && event.state.imageModalOpen) {
+                console.log(
+                    "Popstate: State indicates image modal open (unexpected direct navigation?). Attempting to open modal."
+                );
+                // This case is tricky on direct navigation. We might not have currentAppInPopup set correctly.
+                // For now, let's just ensure the modal is visible if the state says so,
+                // but actual content loading might require currentAppInPopup to be set first.
+                // A full routing solution would be better here.
+                imageModal.style.display = 'flex';
+            }
+            // If navigating to a state with no modal/popup info (e.g., initial page or external link)
+            else if (!event.state || (!event.state.popupOpen && !event.state.imageModalOpen)) {
+                console.log("Popstate: Navigating to a non-modal/popup state. Ensuring both are closed.");
+                imageModal.style.display = 'none';
+                currentScreenshotIndex = 0;
+                popup.style.display = 'none';
+                currentAppInPopup = null;
+            }
+        });
+
+
+        // Close popup/modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (document.getElementById('image-modal').style.display === 'flex') {
+                    closeImageModal(); // Use custom close function to handle history
+                } else if (document.getElementById('popup').style.display === 'block') {
+                    closePopup(); // Use custom close function to handle history
+                }
+            }
+        });
+
+        // Initial check on load: if the URL hash matches a modal/popup state, handle it
+        // This helps if the user loads the page with #popup or #screenshot in the URL
+        window.addEventListener('load', function() {
+            console.log("Page loaded. Checking URL hash.");
+            if (window.location.hash === '#screenshot') {
+                // This case is problematic on direct load as currentAppInPopup is not set.
+                // Ideally, you'd load app data based on some ID in the URL hash.
+                // For now, just logging the issue. The modal might appear empty.
+                console.warn("Loaded with #screenshot hash. Cannot open specific screenshot without app data.");
+                // Optionally, fetch data and then try to open the modal if app data is found.
+            } else if (window.location.hash === '#popup') {
+                // Similar issue, need app ID in hash to open specific popup on load.
+                console.warn("Loaded with #popup hash. Cannot open specific popup without app data.");
+            }
+            // For initial page load without hash, no action needed, fetchApps already runs.
+        });
+    </script>
+</body>
+
+</html>
