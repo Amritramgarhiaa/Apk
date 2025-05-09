@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <script type="text/javascript">
+   <script type="text/javascript">
    window.SDK_OPTIONS = {
       gameId: "ya2co2q056cob0nz09eww553zr9uo4th",
       onEvent: function (a) {
@@ -23,7 +23,7 @@
    var d = a.getElementsByTagName(b)[0];
    a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
 })(document, "script", "gamemonetize-sdk"); 
-</script>
+   </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>apknixy App Store</title>
@@ -36,10 +36,9 @@
             color: #e0e0e0;
             line-height: 1.5;
         }
-        if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
 sdk.showBanner();
-}
-
+    }
         h3.section-title {
             font-size: 18px;
             margin: 20px 0 10px;
@@ -433,12 +432,28 @@ sdk.showBanner();
             left: 10px;
             z-index: 1002;
             background-color: rgba(0, 0, 0, 0.6);
-            width: auto; /* Adjust width for back button */
-            padding: 8px 12px; /* Adjust padding */
+            width: auto;
+            /* Adjust width for back button */
+            padding: 8px 12px;
+            /* Adjust padding */
         }
 
         .image-modal .btn.back:hover {
             background-color: rgba(0, 0, 0, 0.8);
+        }
+
+         .copied-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 128, 0, 0.8); /* Green background */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1003;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
 
@@ -576,6 +591,10 @@ sdk.showBanner();
         </div>
     </div>
 
+     <div id="copied-message" class="copied-message">
+        Link copied to clipboard!
+    </div>
+
 
     <script>
         let apps = [];
@@ -595,7 +614,7 @@ sdk.showBanner();
             "More from Developer", "Similar Apps", "You Might Also Like", "Related Apps"
         ]; // Names for sections inside the popup
 
-        const apknixyAppLink = "https://apk.e-droid.net/apk/app3405089-6knv8c.apk?v=1";
+        const apknixyAppLink = "https://apk.e-droid.net/apk/app3405089-6knv8c.apk?v=1"; // Assuming this is a placeholder or the store's own app link
 
         function fetchApps() {
             const loadingElement = document.getElementById('loading');
@@ -668,14 +687,13 @@ sdk.showBanner();
             let box = document.createElement("div");
             box.className = "app-box";
             box.innerHTML = `
-                <img class="app-logo" src="${app.logo || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
-                <div class="app-os">${app.os || 'OS'}</div>
-                <div class="app-name">${app.name ? (app.name.length > 10 ? app.name.slice(0, 10) + '...' : app.name) : 'Unnamed App'}</div>
+                <img class="app-logo" src="${app['App Logo URL (only direct link)'] || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
+                <div class="app-os">${app.OS || 'Android'}</div> <div class="app-name">${app['App Name'] ? (app['App Name'].length > 10 ? app['App Name'].slice(0, 10) + '...' : app['App Name']) : 'Unnamed App'}</div>
                 <div class="app-meta">
-                    <span class="stars">★ ${app.rating || '4.0'}</span> |
-                    <span class="app-size">${app.size || '??MB'}</span>
+                    <span class="stars">★ ${app.Rating || '4.0'}</span> |
+                    <span class="app-size">${app['App Size (MB)'] || '??MB'}</span>
                 </div>
-                <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app.Download || '#'}'">Install</button>
+                <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app['APK Download Link'] || '#'}'">Install</button>
             `;
             box.addEventListener('click', () => openPopup(app));
 
@@ -686,53 +704,63 @@ sdk.showBanner();
         function openPopup(app) {
             currentAppInPopup = app;
 
-            document.getElementById("popup-logo").src = app.logo || 'placeholder.png';
-            document.getElementById("popup-title").textContent = app.name || 'Unnamed App';
+            document.getElementById("popup-logo").src = app['App Logo URL (only direct link)'] || 'placeholder.png';
+            document.getElementById("popup-title").textContent = app['App Name'] || 'Unnamed App';
 
             // Populate Popup Meta Details
             const metaDetails = document.getElementById("popup-meta-details");
             metaDetails.innerHTML = `
-                Rating: ${app.rating || '4.0'} |
-                Reviews: ${app.reviewsCount || '0'} |
-                Size: ${app.size || '??MB'} |
-                Downloads: ${app.initialDownloadsCount || '??'}
+                Rating: ${app.Rating || '4.0'} |
+                Reviews: ${app['Reviews Count'] || '0'} |
+                Size: ${app['App Size (MB)'] || '??MB'} |
+                Downloads: ${app['Initial Downloads Count'] || '??'}
             `;
 
             // Populate Popup Sub Meta (Ads, IAP, Age)
             const subMeta = document.getElementById("popup-sub-meta");
             subMeta.innerHTML = `
-                 ${app.containAds === 'Yes' ? '<span>Contains Ads</span>' : ''}
-                 ${app.inAppPurchases === 'Yes' ? '<span>In-App Purchases</span>' : ''}
-                 ${app.madeForChildren === 'Yes' ? '<span>+3</span>' : (app.madeForChildren === 'No' ? '<span>+18</span>' : '')}
+                 ${app['Contain Ads'] === 'Yes' ? '<span>Contains Ads</span>' : ''}
+                 ${app['In-App Purchases?'] === 'Yes' ? '<span>In-App Purchases</span>' : ''}
+                 ${app['Made for Children?'] === 'Yes' ? '<span>+3</span>' : (app['Made for Children?'] === 'No' ? '<span>+18</span>' : '')}
             `;
 
 
-            document.getElementById("popup-info").textContent = app.info || '';
-            document.getElementById("popup-desc").textContent = app.description || 'No description available.';
+            document.getElementById("popup-info").textContent = app.Info || ''; // Assuming 'Info' might be a relevant column if not description
+            document.getElementById("popup-desc").textContent = app.Description || 'No description available.'; // Using 'Description' as per your headers
 
             const installBtn = document.getElementById("popup-install-btn");
-            // Changed installUrl to Download
-            installBtn.onclick = () => window.location.href = app.Download || '#';
-            installBtn.disabled = !app.Download; // Also disable if app.Download is empty or null
+            // *** CORRECTED: Using bracket notation for the download link ***
+            installBtn.onclick = () => window.location.href = app['APK Download Link'] || '#';
+            // *** CORRECTED: Using bracket notation for the download link ***
+            installBtn.disabled = !app['APK Download Link']; // Also disable if app['APK Download Link'] is empty or null
 
 
             const screenshotsContainer = document.getElementById("popup-screenshots");
             screenshotsContainer.innerHTML = '';
 
-            if (app.screenshots && Array.isArray(app.screenshots) && app.screenshots.length > 0) {
-                app.screenshots.forEach((screenshot, index) => {
-                    const img = document.createElement("img");
-                    img.src = screenshot;
-                    img.alt = `Screenshot ${index + 1}`;
-                    img.onclick = (event) => {
-                        event.stopPropagation();
-                        openImageModal(index);
-                    };
-                    screenshotsContainer.appendChild(img);
+             // Assuming your 'Screenshots URLs (only direct link)' column contains a comma-separated string
+            const screenshots = app['Screenshots URLs (only direct link)'] ? app['Screenshots URLs (only direct link)'].split(',').map(url => url.trim()) : [];
+
+
+            if (screenshots && Array.isArray(screenshots) && screenshots.length > 0) {
+                screenshots.forEach((screenshot, index) => {
+                    if (screenshot) { // Ensure the URL is not empty after splitting
+                        const img = document.createElement("img");
+                        img.src = screenshot;
+                        img.alt = `Screenshot ${index + 1}`;
+                        img.onclick = (event) => {
+                            event.stopPropagation();
+                            openImageModal(index);
+                        };
+                        screenshotsContainer.appendChild(img);
+                    }
                 });
-            } else {
-                screenshotsContainer.innerHTML = '<p style="text-align: center; color: #a0a0a0;">No screenshots available.</p>';
             }
+
+            if (screenshotsContainer.children.length === 0) {
+                 screenshotsContainer.innerHTML = '<p style="text-align: center; color: #a0a0a0;">No screenshots available.</p>';
+            }
+
 
             // Display sections inside the popup
             displayPopupSections();
@@ -776,14 +804,13 @@ sdk.showBanner();
                     let box = document.createElement("div");
                     box.className = "app-box";
                     box.innerHTML = `
-                            <img class="app-logo" src="${app.logo || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
-                            <div class="app-os">${app.os || 'OS'}</div>
-                            <div class="app-name">${app.name ? (app.name.length > 10 ? app.name.slice(0, 10) + '...' : app.name) : 'Unnamed App'}</div>
+                            <img class="app-logo" src="${app['App Logo URL (only direct link)'] || 'placeholder.png'}" onerror="this.onerror=null;this.src='placeholder.png';" />
+                            <div class="app-os">${app.OS || 'Android'}</div> <div class="app-name">${app['App Name'] ? (app['App Name'].length > 10 ? app['App Name'].slice(0, 10) + '...' : app['App Name']) : 'Unnamed App'}</div>
                             <div class="app-meta">
-                                <span class="stars">★ ${app.rating || '4.0'}</span> |
-                                <span class="app-size">${app.size || '??MB'}</span>
+                                <span class="stars">★ ${app.Rating || '4.0'}</span> |
+                                <span class="app-size">${app['App Size (MB)'] || '??MB'}</span>
                             </div>
-                            <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app.Download || '#'}'">Install</button>
+                            <button class="install-btn" onclick="event.stopPropagation(); window.location.href = '${app['APK Download Link'] || '#'}'">Install</button>
                        `;
                     // Add click listener to open the popup for THIS app
                     box.addEventListener('click', () => {
@@ -795,8 +822,8 @@ sdk.showBanner();
                 });
 
                 if (sectionApps.length > 0) {
-                    sectionDiv.appendChild(row);
                     container.appendChild(sectionDiv);
+                    sectionDiv.appendChild(row); // Append row to sectionDiv
                 }
             });
         }
@@ -819,7 +846,13 @@ sdk.showBanner();
         }
 
         function openImageModal(initialIndex = 0) {
-            if (!currentAppInPopup || !currentAppInPopup.screenshots || !Array.isArray(currentAppInPopup.screenshots) || currentAppInPopup.screenshots.length === 0) {
+             if (!currentAppInPopup || !currentAppInPopup['Screenshots URLs (only direct link)']) {
+                 console.error("No screenshots data available for fullscreen view.");
+                 return;
+            }
+             const screenshots = currentAppInPopup['Screenshots URLs (only direct link)'].split(',').map(url => url.trim()).filter(url => url);
+
+            if (screenshots.length === 0) {
                 console.error("No screenshots available for fullscreen view.");
                 return;
             }
@@ -828,15 +861,16 @@ sdk.showBanner();
             const modal = document.getElementById('image-modal');
             const imgElement = document.getElementById('fullscreen-screenshot-img');
 
-            console.log("Opening fullscreen screenshot:", currentAppInPopup.screenshots[currentScreenshotIndex]);
-            imgElement.src = currentAppInPopup.screenshots[currentScreenshotIndex];
+            console.log("Opening fullscreen screenshot:", screenshots[currentScreenshotIndex]);
+            imgElement.src = screenshots[currentScreenshotIndex];
 
 
             modal.style.display = 'flex';
             // Push a new state for the image modal
             if (!history.state || !history.state.imageModalOpen) { // Only push if not already in image modal state
                 history.pushState({
-                    imageModalOpen: true
+                    imageModalOpen: true,
+                    appId: currentAppInPopup['App Name'] // Or some unique ID
                 }, '', '#screenshot');
                 console.log("Pushed image modal state.");
             } else {
@@ -861,11 +895,15 @@ sdk.showBanner();
         }
 
         function changeScreenshot(direction) {
-            if (!currentAppInPopup || !currentAppInPopup.screenshots || !Array.isArray(currentAppInPopup.screenshots) || currentAppInPopup.screenshots.length <= 1) {
+            if (!currentAppInPopup || !currentAppInPopup['Screenshots URLs (only direct link)']) {
                 return;
             }
+            const screenshots = currentAppInPopup['Screenshots URLs (only direct link)'].split(',').map(url => url.trim()).filter(url => url);
 
-            const screenshots = currentAppInPopup.screenshots;
+
+            if (screenshots.length <= 1) {
+                return;
+            }
 
             if (direction === 'next') {
                 currentScreenshotIndex = (currentScreenshotIndex + 1) % screenshots.length;
@@ -878,6 +916,15 @@ sdk.showBanner();
             imgElement.src = screenshots[currentScreenshotIndex];
         }
 
+        // Function to show the "Copied" message temporarily
+        function showCopiedMessage() {
+            const messageElement = document.getElementById('copied-message');
+            messageElement.style.opacity = '1';
+            setTimeout(() => {
+                messageElement.style.opacity = '0';
+            }, 3000); // Hide after 3 seconds
+        }
+
 
         function shareApp() {
             if (!currentAppInPopup) {
@@ -885,25 +932,33 @@ sdk.showBanner();
                 return;
             }
 
-            const appName = currentAppInPopup.name || 'Unnamed App';
-            const appDescriptionSnippet = currentAppAppInPopup.description ? currentAppInPopup.description.substring(0, 150).trim() + '...' : 'Check out this app!';
-            // Use app.Download for the share URL if available, otherwise fallback
-            const appInstallUrl = currentAppInPopup.Download || '#';
-            const appRating = currentAppInPopup.rating || 'N/A';
-            const appSize = currentAppInPopup.size || 'N/A';
+            const appName = currentAppInPopup['App Name'] || 'Unnamed App';
+            // Check if description exists and is not empty before trying to substring
+            const appDescriptionSnippet = currentAppInPopup.Description
+                ? (currentAppInPopup.Description.length > 150 ? currentAppInPopup.Description.substring(0, 150).trim() + '...' : currentAppInPopup.Description)
+                : 'Check out this app!';
+
+            // *** CORRECTED: Using bracket notation for the download link ***
+            const appInstallUrl = currentAppInPopup['APK Download Link'] || '#';
+            const appRating = currentAppInPopup.Rating || 'N/A';
+            const appSize = currentAppInPopup['App Size (MB)'] || 'N/A';
 
 
             let shareText = `*${appName}*\n`;
             shareText += `Rating: ${appRating} | Size: ${appSize}\n`;
-            if (currentAppInPopup.containAds === 'Yes') shareText += `Contains Ads\n`;
-            if (currentAppInPopup.inAppPurchases === 'Yes') shareText += `In-App Purchases\n`;
-            if (currentAppInPopup.madeForChildren === 'Yes') shareText += `Age Rating: +3\n`;
-            else if (currentAppInPopup.madeForChildren === 'No') shareText += `Age Rating: +18\n`;
-            shareText += `\n${appDescriptionSnippet}\n\n`;
+            if (currentAppInPopup['Contain Ads'] === 'Yes') shareText += `Contains Ads\n`;
+            if (currentAppInPopup['In-App Purchases?'] === 'Yes') shareText += `In-App Purchases\n`;
+            if (currentAppInPopup['Made for Children?'] === 'Yes') shareText += `Age Rating: +3\n`;
+            else if (currentAppInPopup['Made for Children?'] === 'No') shareText += `Age Rating: +18\n`;
+             if (appDescriptionSnippet !== 'Check out this app!') {
+                 shareText += `\n${appDescriptionSnippet}\n\n`;
+             }
+
 
             if (appInstallUrl !== '#') {
                 shareText += `Download App: ${appInstallUrl}\n`;
             }
+             // You might want to add the specific app's popup URL here if you implement deep linking
             shareText += `\nGet apknixy App Store: ${apknixyAppLink}`;
 
 
@@ -915,11 +970,34 @@ sdk.showBanner();
                     url: appInstallUrl !== '#' ? appInstallUrl : window.location.href
                 }).catch(error => {
                     console.error('Error sharing:', error);
+                    // Optional: Fallback to copy if share fails after dialog opened (less common)
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                         navigator.clipboard.writeText(shareText).then(() => {
+                            showCopiedMessage();
+                            console.log('Share failed, but text copied to clipboard.');
+                        }).catch(copyError => {
+                            console.error('Copy failed after share error:', copyError);
+                        });
+                    }
                 });
             } else {
-                console.log('Web Share API not supported.');
+                console.log('Web Share API not supported. Copying to clipboard.');
                 console.log('Share Details:', shareText);
-                // Removed alert - user needs to check console for details
+                // Fallback: Copy text to clipboard
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        showCopiedMessage(); // Show the "Copied" message
+                        console.log('Share text copied to clipboard.');
+                    }).catch(err => {
+                        console.error('Failed to copy text:', err);
+                        // Optional: Alert user if copy failed
+                         alert('Could not automatically copy share text. Please copy manually:\n\n' + shareText);
+                    });
+                } else {
+                     // Fallback for older browsers without Clipboard API
+                     console.warn('Clipboard API not available. Manual copy required.');
+                     alert('Sharing is not supported in this browser. Please copy the text manually:\n\n' + shareText);
+                }
             }
         }
 
@@ -945,20 +1023,48 @@ sdk.showBanner();
             // If the state indicates the popup should be open (e.g., navigating back from image modal to popup)
             else if (event.state && event.state.popupOpen && !event.state.imageModalOpen) {
                 console.log("Popstate: Opening popup based on state.");
-                popup.style.display = 'block';
-                imageModal.style.display = 'none'; // Ensure modal is closed
-                currentScreenshotIndex = 0; // Reset index
+                // Check if currentAppInPopup is still set. If not, we can't re-open the *correct* popup state.
+                if (currentAppInPopup) { // A more robust solution would use the app ID from state
+                     popup.style.display = 'block';
+                     imageModal.style.display = 'none'; // Ensure modal is closed
+                     currentScreenshotIndex = 0; // Reset index
+                     // Re-populate popup content from currentAppInPopup is handled by openPopup if called,
+                     // but here we assume the state means it was already open and just needs display set to block.
+                     // For true deep linking on history, you'd need to store app ID in state and call openPopup(appFoundById).
+                } else {
+                     console.warn("Popstate: Cannot reopen popup as currentAppInPopup is not set. Closing both.");
+                     popup.style.display = 'none';
+                     imageModal.style.display = 'none';
+                     currentScreenshotIndex = 0;
+                }
             }
             // If the state indicates image modal should be open (this shouldn't happen from back unless direct link + history manipulation)
             else if (event.state && event.state.imageModalOpen) {
-                console.log(
+                 console.log(
                     "Popstate: State indicates image modal open (unexpected direct navigation?). Attempting to open modal."
                 );
-                // This case is tricky on direct navigation. We might not have currentAppInPopup set correctly.
-                // For now, let's just ensure the modal is visible if the state says so,
-                // but actual content loading might require currentAppInPopup to be set first.
-                // A full routing solution would be better here.
-                imageModal.style.display = 'flex';
+                 // This case is tricky on direct navigation/history pop without currentAppInPopup.
+                 // Need app data to open image modal correctly.
+                 if (currentAppInPopup && currentAppInPopup['Screenshots URLs (only direct link)']) {
+                     const screenshots = currentAppInPopup['Screenshots URLs (only direct link)'].split(',').map(url => url.trim()).filter(url => url);
+                     if (screenshots.length > 0) {
+                         imageModal.style.display = 'flex';
+                          // Attempt to set the screenshot, though the exact index might not be in the state
+                         document.getElementById('fullscreen-screenshot-img').src = screenshots[currentScreenshotIndex]; // Uses current index, might be wrong
+                     } else {
+                          console.warn("Popstate: No valid screenshots found for image modal.");
+                           popup.style.display = 'none';
+                          imageModal.style.display = 'none';
+                          currentScreenshotIndex = 0;
+                          currentAppInPopup = null;
+                     }
+                 } else {
+                     console.warn("Popstate: Cannot reopen image modal as currentAppInPopup or screenshots are missing. Closing both.");
+                      popup.style.display = 'none';
+                     imageModal.style.display = 'none';
+                     currentScreenshotIndex = 0;
+                     currentAppInPopup = null;
+                 }
             }
             // If navigating to a state with no modal/popup info (e.g., initial page or external link)
             else if (!event.state || (!event.state.popupOpen && !event.state.imageModalOpen)) {
@@ -986,15 +1092,21 @@ sdk.showBanner();
         // This helps if the user loads the page with #popup or #screenshot in the URL
         window.addEventListener('load', function() {
             console.log("Page loaded. Checking URL hash.");
+            // To properly handle direct links with hashes like #popup or #screenshot on load,
+            // you would need to encode the app ID (and possibly screenshot index) in the hash,
+            // then parse it here, find the app data, and open the corresponding modal/popup.
+            // This current implementation doesn't support deep linking to specific app/screenshot states on *initial load*.
+            // The history handling logic is primarily for navigation *after* the page has loaded and apps are fetched.
             if (window.location.hash === '#screenshot') {
-                // This case is problematic on direct load as currentAppInPopup is not set.
-                // Ideally, you'd load app data based on some ID in the URL hash.
-                // For now, just logging the issue. The modal might appear empty.
-                console.warn("Loaded with #screenshot hash. Cannot open specific screenshot without app data.");
-                // Optionally, fetch data and then try to open the modal if app data is found.
+                 console.warn("Loaded with #screenshot hash. Direct linking to screenshot is not fully supported on load without app ID in hash.");
+                 // Attempt to close if it was somehow left open from a previous session state not cleared
+                 closeImageModal(); // This will attempt history.back() which might be unexpected on load
+                  // A better approach might be history.replaceState({}, '', window.location.pathname + window.location.search);
             } else if (window.location.hash === '#popup') {
-                // Similar issue, need app ID in hash to open specific popup on load.
-                console.warn("Loaded with #popup hash. Cannot open specific popup without app data.");
+                console.warn("Loaded with #popup hash. Direct linking to popup is not fully supported on load without app ID in hash.");
+                 // Attempt to close if it was somehow left open
+                 closePopup(); // This will attempt history.back() which might be unexpected on load
+                 // A better approach might be history.replaceState({}, '', window.location.pathname + window.location.search);
             }
             // For initial page load without hash, no action needed, fetchApps already runs.
         });
